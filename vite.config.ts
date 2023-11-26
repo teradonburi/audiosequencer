@@ -15,7 +15,7 @@ export default defineConfig({
         '': resolve(__dirname, 'src/index.html'),
       },
       output: {
-        entryFileNames: `assets/[name]/bundle.js`,
+        entryFileNames: `assets/bundle.js`,
       },
     },
   },
