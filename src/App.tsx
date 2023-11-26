@@ -15,7 +15,7 @@ const App: React.FC = () => {
       // n: ド=60, レ=62, ミ=64, ファ=65, ソ=67, ラ=69, シ=71, ド=72
       // d: 4分音符=4, 8分音符=8, 16分音符=16
       // t: 開始時間
-      notes?: { n: number; d?: number; t?: number }[]
+      notes?: { n: number; d: number; tt: number; t: number }[]
     }[]
   >([])
   const webAudioSynth = React.useMemo(() => new WebAudioSynth(), [])
@@ -57,16 +57,19 @@ const App: React.FC = () => {
       notes?: { n: number; d?: number; t?: number }[]
     }[] = sequences.filter((s) => s.channel === 9)
 
-    let duration = [...instrumentParts, ...drammapParts].reduce((acc, cur) => {
-      let t = 0
-      cur.notes.forEach((note) => {
-        const div = note.d || 4
-        const dt = (60 / tempo) * (4 / div)
-        t += dt
-        if (acc < t) acc = t
-      })
-      return acc
-    }, 0)
+    const duration = [...instrumentParts, ...drammapParts].reduce(
+      (acc, cur) => {
+        let t = 0
+        cur.notes.forEach((note) => {
+          const div = note.d || 4
+          const dt = (60 / tempo) * (4 / div)
+          t += dt
+          if (acc < t) acc = t
+        })
+        return acc
+      },
+      0,
+    )
 
     if (isRecording) {
       await webAudioSynth.recording(duration)
@@ -76,15 +79,13 @@ const App: React.FC = () => {
       if (i === 9) {
         for (const drammapPart of drammapParts) {
           const n = webAudioSynth.getDrummapIdx(drammapPart.name)
-          let t = 0
           drammapPart.notes.forEach((note) => {
             const div = note.d || 4
             const dt = (60 / tempo) * (4 / div)
+            const t = note.t || 0
             if (note.n) {
               webAudioSynth.noteOn({ ch: i, n, t, dt })
             }
-            t += dt
-            if (duration < t) duration = t
           })
         }
         continue
@@ -93,15 +94,13 @@ const App: React.FC = () => {
       if (!instrumentPart) continue
       webAudioSynth.setInstrument(i, instrumentPart.name)
 
-      let t = 0
       instrumentPart.notes.forEach((note) => {
         const div = note.d || 4
         const dt = (60 / tempo) * (4 / div)
+        const t = note.t || 0
         if (note.n) {
           webAudioSynth.noteOn({ ch: i, n: note.n, t, dt })
         }
-        t += dt
-        if (duration < t) duration = t
       })
     }
   }
@@ -115,15 +114,25 @@ const App: React.FC = () => {
     idx: number
     channel: number
     name: string
-    note: { n: number; d: number; t: number }
+    note: { n: number; d: number; tt: number }
   }) => {
-    webAudioSynth.allSoundOff(channel)
     if (idx !== 9) {
       webAudioSynth.setInstrument(channel, name)
     }
-    webAudioSynth.noteOn({ ch: channel, n: note.n, t: 0, dt: note.t })
+    const dt = (60 / tempo) * (4 / note.d)
+    webAudioSynth.noteOn({
+      ch: channel,
+      n: note.n,
+      t: 0,
+      dt,
+    })
     const notes = sequences[idx].notes || []
-    notes.push(note)
+    notes.push({
+      n: note.n,
+      d: note.d,
+      tt: note.tt,
+      t: note.tt * (60 / tempo) * (4 / 32),
+    })
     sequences[idx] = { channel, name, notes }
     setSequences([...sequences])
   }
@@ -136,16 +145,6 @@ const App: React.FC = () => {
 
       <button onClick={saveSequences}>save</button>
       <button onClick={clearSequences}>clear</button>
-      <div>
-        channel:
-        <select>
-          {Array(WebAudioSynth.maxChannel)
-            .fill(undefined)
-            .map((_, j) => (
-              <option key={`channel-${j}`}>{j + 1}</option>
-            ))}
-        </select>
-      </div>
       <div>
         {sequences.map((s, i) => (
           <StaffNotation

@@ -5,7 +5,7 @@ interface Props {
   idx: number
   channel: number
   names: string[]
-  notes: { n: number; d?: number; t?: number }[]
+  notes: { n: number; d: number; tt: number }[]
   setNote: ({
     idx,
     channel,
@@ -15,7 +15,7 @@ interface Props {
     idx: number
     channel: number
     name: string
-    note: { n: number; d: number; t: number }
+    note: { n: number; d: number; tt: number }
   }) => void
 }
 
@@ -40,6 +40,10 @@ const StaffNotation: React.FC<Props> = (props) => {
               style={{
                 top: (i % octaveNoteLength) * 20,
                 left: Math.floor(i / octaveNoteLength) * 20,
+                // n: ド=60, レ=62, ミ=64, ファ=65, ソ=67, ラ=69, シ=71, ド=72
+                background: [1, 3, 6, 8, 10].includes(i % octaveNoteLength)
+                  ? '#ccc'
+                  : '#fff',
               }}
               className={classes.emptyNote}
               onClick={() =>
@@ -50,7 +54,7 @@ const StaffNotation: React.FC<Props> = (props) => {
                   note: {
                     n: 12 - (i % octaveNoteLength) + 60,
                     d: 4,
-                    t: Math.floor(i / octaveNoteLength),
+                    tt: Math.floor(i / octaveNoteLength),
                   },
                 })
               }
@@ -60,8 +64,8 @@ const StaffNotation: React.FC<Props> = (props) => {
           <div
             key={`note-${i}`}
             style={{
-              top: 240 - ((note.n % octaveNoteLength) - 1) * 20,
-              left: note.t * 20,
+              top: 240 - (note.n - 61) * 20,
+              left: note.tt * 20,
               width: note.d * 20,
             }}
             className={classes.note}

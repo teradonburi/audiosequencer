@@ -25,7 +25,7 @@ export const classes = {
       height: '100%',
     },
     ':hover': {
-      background: 'aqua',
+      background: 'aqua !important',
     },
   }),
   note: style({
