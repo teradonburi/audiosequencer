@@ -2,11 +2,8 @@ import React from 'react'
 import { WebAudioSynth } from './tool/webAudioSynth'
 import StaffNotation from './tool/StaffNotation'
 
-const emptySequence = Array(WebAudioSynth.maxChannel)
-  .fill(undefined)
-  .map((_, i) => ({ channel: i, notes: [] }))
-
 const App: React.FC = () => {
+  const tempo = 80 // テンポ80
   const [sequences, setSequences] = React.useState<
     {
       channel: number
@@ -18,19 +15,30 @@ const App: React.FC = () => {
       notes?: { n: number; d: number; tt: number; t: number }[]
     }[]
   >([])
-  const webAudioSynth = React.useMemo(() => new WebAudioSynth(), [])
-  const tempo = 80 // テンポ80
+  const { webAudioSynth, emptySequence } = React.useMemo(() => {
+    const webAudioSynth = new WebAudioSynth()
+    webAudioSynth.init()
+    const emptySequence = Array(WebAudioSynth.maxChannel)
+      .fill(undefined)
+      .map((_, i) => ({
+        channel: i,
+        name:
+          i === 9
+            ? webAudioSynth.drumNames[0]
+            : webAudioSynth.instrumentNames[0],
+        notes: [],
+      }))
+    return { webAudioSynth, emptySequence }
+  }, [])
 
   React.useEffect(() => {
-    webAudioSynth.init()
-
     const dataStr = window.localStorage.getItem('sequences')
     if (dataStr) {
       setSequences(JSON.parse(dataStr))
     } else {
       setSequences(emptySequence)
     }
-  }, [webAudioSynth])
+  }, [webAudioSynth, emptySequence])
 
   const clearSequences = () => {
     window.localStorage.setItem('sequences', JSON.stringify(emptySequence))
@@ -105,20 +113,22 @@ const App: React.FC = () => {
     }
   }
 
+  const setName = ({ channel, name }: { channel: number; name: string }) => {
+    const sequence = sequences[channel]
+    sequences[channel] = { ...sequence, name }
+    if (channel !== 9) {
+      webAudioSynth.setInstrument(channel, sequence.name)
+    }
+    setSequences([...sequences])
+  }
+
   const setNote = ({
-    idx,
     channel,
-    name,
     note,
   }: {
-    idx: number
     channel: number
-    name: string
     note: { n: number; d: number; tt: number }
   }) => {
-    if (idx !== 9) {
-      webAudioSynth.setInstrument(channel, name)
-    }
     const dt = (60 / tempo) * (4 / note.d)
     webAudioSynth.noteOn({
       ch: channel,
@@ -126,14 +136,15 @@ const App: React.FC = () => {
       t: 0,
       dt,
     })
-    const notes = sequences[idx].notes || []
+    const sequence = sequences[channel]
+    const notes = sequence.notes || []
     notes.push({
       n: note.n,
       d: note.d,
       tt: note.tt,
       t: note.tt * (60 / tempo) * (4 / 32),
     })
-    sequences[idx] = { channel, name, notes }
+    sequences[channel] = { ...sequence, notes }
     setSequences([...sequences])
   }
 
@@ -149,14 +160,15 @@ const App: React.FC = () => {
         {sequences.map((s, i) => (
           <StaffNotation
             key={i}
-            idx={i}
             channel={s.channel}
+            name={s.name}
             names={
               s.channel === 9
                 ? webAudioSynth.drumNames
                 : webAudioSynth.instrumentNames
             }
             notes={s.notes || []}
+            setName={setName}
             setNote={setNote}
           />
         ))}

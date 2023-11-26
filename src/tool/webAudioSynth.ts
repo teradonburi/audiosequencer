@@ -115,10 +115,10 @@ export class WebAudioSynth {
   }
 
   get instrumentNames() {
-    return this.generalMIDI.instruments.map((i) => i.name)
+    return this.generalMIDI?.instruments.map((i) => i.name) || []
   }
   get drumNames() {
-    return this.generalMIDI.drummaps.map((d) => d.name)
+    return this.generalMIDI?.drummaps.map((d) => d.name) || []
   }
 
   public setInstrument(ch: number, name: string) {

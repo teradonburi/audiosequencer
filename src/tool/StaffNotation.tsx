@@ -2,31 +2,30 @@ import React from 'react'
 import { classes } from './StaffNotation.css'
 
 interface Props {
-  idx: number
   channel: number
+  name: string
   names: string[]
   notes: { n: number; d: number; tt: number }[]
+  setName: ({ channel, name }: { channel: number; name: string }) => void
   setNote: ({
-    idx,
     channel,
-    name,
     note,
   }: {
-    idx: number
     channel: number
-    name: string
     note: { n: number; d: number; tt: number }
   }) => void
 }
 
 const StaffNotation: React.FC<Props> = (props) => {
-  const { idx, channel, names, notes, setNote } = props
+  const { channel, name, names, notes, setName, setNote } = props
   const octaveNoteLength = 12
-  const [name, setName] = React.useState(names[0])
 
   return (
     <div className={classes.root}>
-      <select onChange={(e) => setName(e.target.value)}>
+      <select
+        defaultValue={name}
+        onChange={(e) => setName({ channel, name: e.target.value })}
+      >
         {names.map((name) => (
           <option key={name}>{name}</option>
         ))}
@@ -42,15 +41,13 @@ const StaffNotation: React.FC<Props> = (props) => {
                 left: Math.floor(i / octaveNoteLength) * 20,
                 // n: ド=60, レ=62, ミ=64, ファ=65, ソ=67, ラ=69, シ=71, ド=72
                 background: [1, 3, 6, 8, 10].includes(i % octaveNoteLength)
-                  ? '#ccc'
+                  ? '#888'
                   : '#fff',
               }}
               className={classes.emptyNote}
               onClick={() =>
                 setNote({
-                  idx,
                   channel,
-                  name,
                   note: {
                     n: 12 - (i % octaveNoteLength) + 60,
                     d: 4,
