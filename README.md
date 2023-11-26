@@ -1,0 +1,1 @@
+[viteでReact×TypeScript環境を爆速で作る最小版](https://qiita.com/teradonburi/items/fcdd900adb069811bfda)
