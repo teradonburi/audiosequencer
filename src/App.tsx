@@ -126,7 +126,7 @@ const App: React.FC = () => {
     setSequences([...sequences])
   }
 
-  const setNote = ({
+  const addNote = ({
     channel,
     note,
   }: {
@@ -148,6 +148,45 @@ const App: React.FC = () => {
       tt: note.tt,
       t: note.tt * (60 / tempo) * (4 / 32),
     })
+    sequences[channel] = { ...sequence, notes }
+    setSequences([...sequences])
+  }
+
+  const deleteNote = ({
+    channel,
+    noteIndex,
+  }: {
+    channel: number
+    noteIndex: number
+  }) => {
+    const sequence = sequences[channel]
+    const notes = sequence.notes || []
+    notes.splice(noteIndex, 1)
+    sequences[channel] = { ...sequence, notes }
+    setSequences([...sequences])
+  }
+
+  const updateNote = ({
+    channel,
+    note,
+    noteIndex,
+  }: {
+    channel: number
+    note: { n: number; d: number; tt: number }
+    noteIndex: number
+  }) => {
+    const sequence = sequences[channel]
+    const notes = sequence.notes || []
+    if (!notes[noteIndex]) return
+
+    const dt = (60 / tempo) * (4 / note.d)
+    webAudioSynth.noteOn({
+      ch: channel,
+      n: note.n,
+      t: 0,
+      dt,
+    })
+    notes[noteIndex] = { ...note, t: note.tt * (60 / tempo) * (4 / 32) }
     sequences[channel] = { ...sequence, notes }
     setSequences([...sequences])
   }
@@ -176,7 +215,9 @@ const App: React.FC = () => {
               s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
             }
             setName={setName}
-            setNote={setNote}
+            addNote={addNote}
+            deleteNote={deleteNote}
+            updateNote={updateNote}
             mode={s.mode}
           />
         ))}

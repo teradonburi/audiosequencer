@@ -1,5 +1,13 @@
 import React from 'react'
 import { cellSize, classes } from './Sequence.css'
+import {
+  Menu,
+  Item,
+  useContextMenu,
+  ItemParams,
+  Separator,
+} from 'react-contexify'
+import 'react-contexify/ReactContexify.css'
 
 interface Props {
   channel: number
@@ -7,12 +15,28 @@ interface Props {
   names: string[]
   notes: { n: number; d: number; tt: number }[]
   setName: ({ channel, name }: { channel: number; name: string }) => void
-  setNote: ({
+  addNote: ({
     channel,
     note,
   }: {
     channel: number
     note: { n: number; d: number; tt: number }
+  }) => void
+  deleteNote: ({
+    channel,
+    noteIndex,
+  }: {
+    channel: number
+    noteIndex: number
+  }) => void
+  updateNote: ({
+    channel,
+    note,
+    noteIndex,
+  }: {
+    channel: number
+    note: { n: number; d: number; tt: number }
+    noteIndex: number
   }) => void
   octaveNoteLength: number
   mode: 'instrument' | 'drum'
@@ -26,9 +50,92 @@ const Sequence: React.FC<Props> = (props) => {
     notes,
     octaveNoteLength,
     setName,
-    setNote,
+    addNote,
+    deleteNote,
+    updateNote,
     mode,
   } = props
+
+  const MENU_ID = 'menu'
+  const { show } = useContextMenu({
+    id: MENU_ID,
+  })
+
+  function handleContextMenu(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    channel: number,
+    note: (typeof notes)[0],
+    noteIndex: number,
+  ) {
+    e.preventDefault()
+    show({
+      event: e,
+      props: {
+        channel,
+        note,
+        noteIndex,
+      },
+    })
+  }
+
+  const handleItemClick = (params: ItemParams) => {
+    const { id, props } = params
+    switch (id) {
+      case 'delete':
+        deleteNote({ channel: props.channel, noteIndex: props.noteIndex })
+        break
+      case 'whole':
+        updateNote({
+          channel: props.channel,
+          note: {
+            ...props.note,
+            d: 16,
+          },
+          noteIndex: props.noteIndex,
+        })
+        break
+      case 'half':
+        updateNote({
+          channel: props.channel,
+          note: {
+            ...props.note,
+            d: 8,
+          },
+          noteIndex: props.noteIndex,
+        })
+        break
+      case 'quarter':
+        updateNote({
+          channel: props.channel,
+          note: {
+            ...props.note,
+            d: 4,
+          },
+          noteIndex: props.noteIndex,
+        })
+        break
+      case 'eighth':
+        updateNote({
+          channel: props.channel,
+          note: {
+            ...props.note,
+            d: 2,
+          },
+          noteIndex: props.noteIndex,
+        })
+        break
+      case 'sixteenth':
+        updateNote({
+          channel: props.channel,
+          note: {
+            ...props.note,
+            d: 1,
+          },
+          noteIndex: props.noteIndex,
+        })
+        break
+    }
+  }
 
   return (
     <div
@@ -74,7 +181,7 @@ const Sequence: React.FC<Props> = (props) => {
               }}
               className={classes.emptyNote}
               onClick={() =>
-                setNote({
+                addNote({
                   channel,
                   note: {
                     n:
@@ -100,8 +207,30 @@ const Sequence: React.FC<Props> = (props) => {
               width: note.d * cellSize,
             }}
             className={classes.note}
+            onContextMenu={(e) => handleContextMenu(e, channel, note, i)}
           />
         ))}
+        <Menu id={MENU_ID}>
+          <Item id="delete" onClick={handleItemClick}>
+            Delete
+          </Item>
+          <Separator />
+          <Item id="whole" onClick={handleItemClick}>
+            whole
+          </Item>
+          <Item id="half" onClick={handleItemClick}>
+            half
+          </Item>
+          <Item id="quater" onClick={handleItemClick}>
+            quater
+          </Item>
+          <Item id="eighth" onClick={handleItemClick}>
+            eighth
+          </Item>
+          <Item id="sixteenth" onClick={handleItemClick}>
+            sixteenth
+          </Item>
+        </Menu>
       </div>
     </div>
   )
