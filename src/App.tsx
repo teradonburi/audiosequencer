@@ -1,6 +1,6 @@
 import React from 'react'
 import { WebAudioSynth } from './tool/webAudioSynth'
-import StaffNotation from './tool/StaffNotation'
+import Sequence from './tool/Sequence'
 
 const App: React.FC = () => {
   const tempo = 80 // テンポ80
@@ -13,6 +13,7 @@ const App: React.FC = () => {
       // d: 4分音符=4, 8分音符=8, 16分音符=16
       // t: 開始時間
       notes?: { n: number; d: number; tt: number; t: number }[]
+      mode: 'instrument' | 'drum'
     }[]
   >([])
   const { webAudioSynth, emptySequence } = React.useMemo(() => {
@@ -20,14 +21,18 @@ const App: React.FC = () => {
     webAudioSynth.init()
     const emptySequence = Array(WebAudioSynth.maxChannel)
       .fill(undefined)
-      .map((_, i) => ({
-        channel: i,
-        name:
-          i === 9
-            ? webAudioSynth.drumNames[0]
-            : webAudioSynth.instrumentNames[0],
-        notes: [],
-      }))
+      .map(
+        (_, i) =>
+          ({
+            channel: i,
+            name:
+              i === 9
+                ? webAudioSynth.drumNames[0]
+                : webAudioSynth.instrumentNames[0],
+            mode: i === 9 ? 'drum' : 'instrument',
+            notes: [],
+          }) as (typeof sequences)[0],
+      )
     return { webAudioSynth, emptySequence }
   }, [])
 
@@ -86,13 +91,12 @@ const App: React.FC = () => {
     for (let i = 0; i < WebAudioSynth.maxChannel; ++i) {
       if (i === 9) {
         for (const drammapPart of drammapParts) {
-          const n = webAudioSynth.getDrummapIdx(drammapPart.name)
           drammapPart.notes.forEach((note) => {
             const div = note.d || 4
             const dt = (60 / tempo) * (4 / div)
             const t = note.t || 0
             if (note.n) {
-              webAudioSynth.noteOn({ ch: i, n, t, dt })
+              webAudioSynth.noteOn({ ch: i, n: note.n, t, dt })
             }
           })
         }
@@ -150,7 +154,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <h1>WebAudioSynth画面</h1>
+      <h1>WebAudioシーケンサー</h1>
       <button onClick={() => play({})}>Play</button>
       <button onClick={() => play({ isRecording: true })}>Rec</button>
 
@@ -158,18 +162,22 @@ const App: React.FC = () => {
       <button onClick={clearSequences}>clear</button>
       <div>
         {sequences.map((s, i) => (
-          <StaffNotation
+          <Sequence
             key={i}
             channel={s.channel}
             name={s.name}
             names={
-              s.channel === 9
+              s.mode === 'drum'
                 ? webAudioSynth.drumNames
                 : webAudioSynth.instrumentNames
             }
             notes={s.notes || []}
+            octaveNoteLength={
+              s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
+            }
             setName={setName}
             setNote={setNote}
+            mode={s.mode}
           />
         ))}
       </div>
