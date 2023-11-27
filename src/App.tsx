@@ -72,11 +72,10 @@ const App: React.FC = () => {
 
     const duration = [...instrumentParts, ...drammapParts].reduce(
       (acc, cur) => {
-        let t = 0
         cur.notes.forEach((note) => {
           const div = note.d || 4
           const dt = (60 / tempo) * (4 / div)
-          t += dt
+          const t = note.t + dt
           if (acc < t) acc = t
         })
         return acc
