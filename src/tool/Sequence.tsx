@@ -104,7 +104,7 @@ const Sequence: React.FC<Props> = (props) => {
           noteIndex: props.noteIndex,
         })
         break
-      case 'quarter':
+      case 'quater':
         updateNote({
           channel: props.channel,
           note: {

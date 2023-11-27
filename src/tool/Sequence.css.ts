@@ -46,5 +46,7 @@ export const classes = {
     height: 20,
     position: 'absolute',
     background: 'lime',
+    cursor: 'pointer',
+    border: 'thin solid black',
   }),
 }
