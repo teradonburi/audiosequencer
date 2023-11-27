@@ -201,25 +201,29 @@ const App: React.FC = () => {
       <button onClick={clearSequences}>clear</button>
       <div>
         {sequences.map((s, i) => (
-          <Sequence
-            key={i}
-            channel={s.channel}
-            name={s.name}
-            names={
-              s.mode === 'drum'
-                ? webAudioSynth.drumNames
-                : webAudioSynth.instrumentNames
-            }
-            notes={s.notes || []}
-            octaveNoteLength={
-              s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
-            }
-            setName={setName}
-            addNote={addNote}
-            deleteNote={deleteNote}
-            updateNote={updateNote}
-            mode={s.mode}
-          />
+          <details key={`sequencer-${i}`} open={i === 0 || i === 9}>
+            <summary>Channel {i + 1}</summary>
+            <dl style={{ margin: 0 }}>
+              <Sequence
+                channel={s.channel}
+                name={s.name}
+                names={
+                  s.mode === 'drum'
+                    ? webAudioSynth.drumNames
+                    : webAudioSynth.instrumentNames
+                }
+                notes={s.notes || []}
+                octaveNoteLength={
+                  s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
+                }
+                setName={setName}
+                addNote={addNote}
+                deleteNote={deleteNote}
+                updateNote={updateNote}
+                mode={s.mode}
+              />
+            </dl>
+          </details>
         ))}
       </div>
     </>
