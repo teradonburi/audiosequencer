@@ -43,7 +43,6 @@ export const classes = {
     },
   }),
   note: style({
-    height: 20,
     position: 'absolute',
     background: 'lime',
     cursor: 'pointer',

@@ -8,6 +8,8 @@ import {
   Separator,
 } from 'react-contexify'
 import 'react-contexify/ReactContexify.css'
+import { ResizableBox } from 'react-resizable'
+import 'react-resizable/css/styles.css'
 
 interface Props {
   channel: number
@@ -137,6 +139,20 @@ const Sequence: React.FC<Props> = (props) => {
     }
   }
 
+  const onResize = (_, { node, size }) => {
+    const noteIndex = parseInt(node.parentNode.getAttribute('data-id'), 10)
+    const note = notes[noteIndex]
+    const d = Math.round(size.width / cellSize)
+    updateNote({
+      channel: props.channel,
+      note: {
+        ...note,
+        d,
+      },
+      noteIndex,
+    })
+  }
+
   return (
     <div
       className={
@@ -188,7 +204,7 @@ const Sequence: React.FC<Props> = (props) => {
                       mode === 'instrument'
                         ? octaveNoteLength - (i % octaveNoteLength) + 60
                         : (i % octaveNoteLength) + 35,
-                    d: 4,
+                    d: mode === 'instrument' ? 4 : 1,
                     tt: Math.floor(i / octaveNoteLength),
                   },
                 })
@@ -204,11 +220,22 @@ const Sequence: React.FC<Props> = (props) => {
                   ? octaveNoteLength * cellSize - (note.n - 60) * cellSize
                   : (note.n - 35) * cellSize,
               left: note.tt * cellSize,
-              width: note.d * cellSize,
             }}
             className={classes.note}
             onContextMenu={(e) => handleContextMenu(e, channel, note, i)}
-          />
+          >
+            <ResizableBox
+              width={note.d * cellSize - 2}
+              height={cellSize - 2}
+              onResizeStop={onResize}
+              axis="x"
+              resizeHandles={['e']}
+              draggableOpts={{ grid: [cellSize, cellSize - 2] }}
+              minConstraints={[cellSize, cellSize - 2]}
+              maxConstraints={[cellSize * 16, cellSize - 2]}
+              data-id={i}
+            />
+          </div>
         ))}
         <Menu id={MENU_ID}>
           <Item id="delete" onClick={handleItemClick}>
