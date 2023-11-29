@@ -160,18 +160,20 @@ const Sequence: React.FC<Props> = (props) => {
       }
     >
       {mode === 'instrument' && (
-        <select
-          defaultValue={name}
-          onChange={(e) => setName({ channel, name: e.target.value })}
-          className={classes.selectName}
-        >
-          {names.map((name) => (
-            <option key={name}>{name}</option>
-          ))}
-        </select>
+        <div className={classes.instrument}>
+          <select
+            defaultValue={name}
+            onChange={(e) => setName({ channel, name: e.target.value })}
+            className={classes.selectName}
+          >
+            {names.map((name) => (
+              <option key={name}>{name}</option>
+            ))}
+          </select>
+        </div>
       )}
       {mode === 'drum' && (
-        <div>
+        <div className={classes.drumset}>
           {names.map((name) => (
             <div key={name} className={classes.name}>
               {name}

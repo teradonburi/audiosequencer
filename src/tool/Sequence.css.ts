@@ -5,6 +5,7 @@ export const cellSize = 20
 export const classes = {
   instrumentRoot: style({
     background: 'white',
+    display: 'flex',
     color: 'black',
     padding: 10,
   }),
@@ -13,9 +14,26 @@ export const classes = {
     color: 'black',
     padding: 10,
     display: 'flex',
+    overflowX: 'auto',
+  }),
+  instrument: style({
+    position: 'sticky',
+    left: -10,
+    paddingLeft: 10,
+    zIndex: 1,
+    background: 'white',
   }),
   selectName: style({
-    marginBottom: 20,
+    margin: '0px 10px 0px 10px',
+    width: 110,
+    alignSelf: 'baseline',
+  }),
+  drumset: style({
+    position: 'sticky',
+    left: -10,
+    paddingLeft: 10,
+    zIndex: 1,
+    background: 'white',
   }),
   name: style({
     fontSize: 12,
