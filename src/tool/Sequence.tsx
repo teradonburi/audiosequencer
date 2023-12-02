@@ -106,7 +106,7 @@ const Sequence: React.FC<Props> = (props) => {
       for (const target of drag.targets) {
         const noteIndex = target.noteIndex
         const note = notes[noteIndex]
-        const n = target.n - diffY
+        const n = target.n + diffY * (mode === 'instrument' ? -1 : 1)
         const tt = target.tt + diffX
         updateNote({
           channel: props.channel,

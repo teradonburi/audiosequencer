@@ -20,7 +20,7 @@ export const classes = {
     position: 'sticky',
     left: -10,
     paddingLeft: 10,
-    zIndex: 1,
+    zIndex: 2,
     background: 'white',
   }),
   selectName: style({
@@ -32,7 +32,7 @@ export const classes = {
     position: 'sticky',
     left: -10,
     paddingLeft: 10,
-    zIndex: 1,
+    zIndex: 2,
     background: 'white',
   }),
   name: style({
