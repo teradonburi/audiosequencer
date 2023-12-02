@@ -61,9 +61,9 @@ export const classes = {
     },
   }),
   note: style({
-    position: 'absolute',
     background: 'lime',
-    cursor: 'pointer',
     border: 'thin solid black',
+    resize: 'horizontal',
+    cursor: 'all-scroll',
   }),
 }
