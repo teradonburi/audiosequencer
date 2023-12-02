@@ -212,7 +212,7 @@ const App: React.FC = () => {
                     : webAudioSynth.instrumentNames
                 }
                 notes={s.notes || []}
-                timeLineMax={20}
+                timeLineMax={100}
                 octaveNoteLength={
                   s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
                 }
