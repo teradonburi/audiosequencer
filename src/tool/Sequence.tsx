@@ -350,6 +350,7 @@ const Note = React.forwardRef<unknown, NoteProps>((props, ref) => {
         data-tt={note.tt}
         width={note.d * cellSize - 2}
         height={cellSize - 2}
+        onResizeStart={(e) => e.stopPropagation()}
         onResizeStop={onResize}
         axis="x"
         resizeHandles={['e']}
