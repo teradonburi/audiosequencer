@@ -26,6 +26,7 @@ export class WebAudioSynth {
 
   private readonly releaseRatio = 3.5
   public static readonly maxChannel = 16
+  public static readonly drumsetChannel = 9
 
   public init() {
     if (this.actx) return
@@ -36,7 +37,7 @@ export class WebAudioSynth {
       this.selectedDrummaps[i] = 0
     }
     // 10ch is drum channel
-    this.selectedDrummaps[9] = 1
+    this.selectedDrummaps[WebAudioSynth.drumsetChannel] = 1
 
     this.actx = new AudioContext()
     this.generalMIDI = new GeneralMIDI(this.actx)
@@ -75,6 +76,7 @@ export class WebAudioSynth {
     let relcnt = 0
     // reset note if note end
     this.timer = setInterval(() => {
+      // console.log(this.actx.currentTime)
       if (++relcnt >= 3) {
         relcnt = 0
         for (let i = this.notetab.length - 1; i >= 0; --i) {

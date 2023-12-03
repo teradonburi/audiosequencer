@@ -1,18 +1,17 @@
 import { style } from '@vanilla-extract/css'
-
-export const cellSize = 20
+import { cellSize } from './Note.css'
 
 export const classes = {
   instrumentRoot: style({
     background: 'white',
     display: 'flex',
     color: 'black',
-    padding: 10,
+    padding: '20px 10px 10px',
   }),
   drumRoot: style({
     background: 'white',
     color: 'black',
-    padding: 10,
+    padding: '20px 10px 10px',
     display: 'flex',
     overflowX: 'auto',
   }),
@@ -20,7 +19,7 @@ export const classes = {
     position: 'sticky',
     left: -10,
     paddingLeft: 10,
-    zIndex: 2,
+    zIndex: 3,
     background: 'white',
   }),
   selectName: style({
@@ -32,7 +31,7 @@ export const classes = {
     position: 'sticky',
     left: -10,
     paddingLeft: 10,
-    zIndex: 2,
+    zIndex: 3,
     background: 'white',
   }),
   name: style({
@@ -60,10 +59,12 @@ export const classes = {
       background: 'aqua !important',
     },
   }),
-  note: style({
-    background: 'lime',
-    border: 'thin solid black',
-    resize: 'horizontal',
-    cursor: 'all-scroll',
+  seek: style({
+    position: 'absolute',
+    left: 0,
+    top: -20,
+    width: 2,
+    background: 'red',
+    zIndex: 2,
   }),
 }

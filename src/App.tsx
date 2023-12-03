@@ -3,7 +3,8 @@ import { WebAudioSynth } from './tool/webAudioSynth'
 import Sequence from './tool/Sequence'
 
 const App: React.FC = () => {
-  const tempo = 80 // テンポ80
+  // 60秒 ⁄ 120 = 0.5秒（「Tempo = 120.000」 は、「１分間に４分音符が 120個」 の意）
+  const [tempo, setTempo] = React.useState(100)
   const [sequences, setSequences] = React.useState<
     {
       channel: number
@@ -26,10 +27,10 @@ const App: React.FC = () => {
           ({
             channel: i,
             name:
-              i === 9
+              i === WebAudioSynth.drumsetChannel
                 ? webAudioSynth.drumNames[0]
                 : webAudioSynth.instrumentNames[0],
-            mode: i === 9 ? 'drum' : 'instrument',
+            mode: i === WebAudioSynth.drumsetChannel ? 'drum' : 'instrument',
             notes: [],
           }) as (typeof sequences)[0],
       )
@@ -42,6 +43,9 @@ const App: React.FC = () => {
       setSequences(JSON.parse(dataStr))
     } else {
       setSequences(emptySequence)
+    }
+    return () => {
+      webAudioSynth.release()
     }
   }, [webAudioSynth, emptySequence])
 
@@ -62,13 +66,13 @@ const App: React.FC = () => {
       // d: 4分音符=4, 8分音符=8, 16分音符=16
       // t: 開始時間
       notes?: { n: number; d?: number; t?: number }[]
-    }[] = sequences.filter((s) => s.channel !== 9)
+    }[] = sequences.filter((s) => s.channel !== WebAudioSynth.drumsetChannel)
 
     const drammapParts: {
       channel: number
       name?: string
       notes?: { n: number; d?: number; t?: number }[]
-    }[] = sequences.filter((s) => s.channel === 9)
+    }[] = sequences.filter((s) => s.channel === WebAudioSynth.drumsetChannel)
 
     const duration = [...instrumentParts, ...drammapParts].reduce(
       (acc, cur) => {
@@ -88,7 +92,7 @@ const App: React.FC = () => {
     }
 
     for (let i = 0; i < WebAudioSynth.maxChannel; ++i) {
-      if (i === 9) {
+      if (i === WebAudioSynth.drumsetChannel) {
         for (const drammapPart of drammapParts) {
           drammapPart.notes.forEach((note) => {
             const div = note.d || 4
@@ -119,7 +123,7 @@ const App: React.FC = () => {
   const setName = ({ channel, name }: { channel: number; name: string }) => {
     const sequence = sequences[channel]
     sequences[channel] = { ...sequence, name }
-    if (channel !== 9) {
+    if (channel !== WebAudioSynth.drumsetChannel) {
       webAudioSynth.setInstrument(channel, sequence.name)
     }
     setSequences([...sequences])
@@ -145,7 +149,7 @@ const App: React.FC = () => {
       n: note.n,
       d: note.d,
       tt: note.tt,
-      t: note.tt * (60 / tempo) * (4 / 32),
+      t: note.tt * (60 / tempo) * (4 / 16), // 16分音符
     })
     sequences[channel] = { ...sequence, notes }
     setSequences([...sequences])
@@ -190,17 +194,52 @@ const App: React.FC = () => {
     setSequences([...sequences])
   }
 
+  const updateTempo = (tempo: number) => {
+    setSequences(
+      sequences.map((s) => ({
+        ...s,
+        notes: (s.notes || []).map((n) => ({
+          ...n,
+          t: n.tt * (60 / tempo) * (4 / 16),
+        })),
+      })),
+    )
+    setTempo(tempo)
+  }
+
   return (
     <>
       <h1>WebAudioシーケンサー</h1>
-      <button onClick={() => play({})}>Play</button>
-      <button onClick={() => play({ isRecording: true })}>Rec</button>
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 3,
+          background: 'white',
+          padding: 10,
+        }}
+      >
+        <button onClick={() => play({})}>Play</button>
+        <button onClick={() => play({ isRecording: true })}>Rec</button>
 
-      <button onClick={saveSequences}>save</button>
-      <button onClick={clearSequences}>clear</button>
+        <button onClick={saveSequences}>save</button>
+        <button onClick={clearSequences}>clear</button>
+        <span>
+          tempo:
+          <input
+            type="number"
+            onChange={(e) => updateTempo(parseInt(e.target.value, 10))}
+            defaultValue={tempo}
+            style={{ width: 50 }}
+          />
+        </span>
+      </div>
       <div>
         {sequences.map((s, i) => (
-          <details key={`sequencer-${i}`} open={i === 0 || i === 9}>
+          <details
+            key={`sequencer-${i}`}
+            open={i === 0 || i === WebAudioSynth.drumsetChannel}
+          >
             <summary>Channel {i + 1}</summary>
             <dl style={{ margin: 0 }}>
               <Sequence
