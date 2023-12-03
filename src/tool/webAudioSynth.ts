@@ -28,7 +28,7 @@ export class WebAudioSynth {
   public static readonly maxChannel = 16
   public static readonly drumsetChannel = 9
 
-  public init() {
+  public init(playCallback: (pos: number) => void) {
     if (this.actx) return
 
     // init MIDI 16ch
@@ -87,6 +87,7 @@ export class WebAudioSynth {
           }
         }
       }
+      playCallback(this.actx.currentTime)
     }, 60)
   }
 

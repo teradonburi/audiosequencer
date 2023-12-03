@@ -1,10 +1,12 @@
 import React from 'react'
 import { WebAudioSynth } from './tool/webAudioSynth'
 import Sequence from './tool/Sequence'
+import { cellSize } from './tool/Note.css'
 
 const App: React.FC = () => {
   // 60秒 ⁄ 120 = 0.5秒（「Tempo = 120.000」 は、「１分間に４分音符が 120個」 の意）
   const [tempo, setTempo] = React.useState(100)
+  const [pos, setPos] = React.useState(0)
   const [sequences, setSequences] = React.useState<
     {
       channel: number
@@ -19,7 +21,9 @@ const App: React.FC = () => {
   >([])
   const { webAudioSynth, emptySequence } = React.useMemo(() => {
     const webAudioSynth = new WebAudioSynth()
-    webAudioSynth.init()
+    webAudioSynth.init((pos) => {
+      setPos(pos)
+    })
     const emptySequence = Array(WebAudioSynth.maxChannel)
       .fill(undefined)
       .map(
@@ -230,7 +234,7 @@ const App: React.FC = () => {
             type="number"
             onChange={(e) => updateTempo(parseInt(e.target.value, 10))}
             defaultValue={tempo}
-            style={{ width: 50 }}
+            style={{ width: 50, textAlign: 'right' }}
           />
         </span>
       </div>
@@ -243,6 +247,7 @@ const App: React.FC = () => {
             <summary>Channel {i + 1}</summary>
             <dl style={{ margin: 0 }}>
               <Sequence
+                pos={pos * cellSize * (60 / tempo) * 4}
                 channel={s.channel}
                 name={s.name}
                 names={

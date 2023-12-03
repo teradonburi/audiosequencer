@@ -5,6 +5,7 @@ import { cellSize } from './Note.css'
 import Note, { Props as NoteProps } from './Note'
 
 interface Props {
+  pos: number
   channel: number
   name: string
   names: string[]
@@ -26,6 +27,7 @@ interface Props {
 
 const Sequence: React.FC<Props> = (props) => {
   const {
+    pos,
     channel,
     name,
     names,
@@ -166,7 +168,10 @@ const Sequence: React.FC<Props> = (props) => {
         })}
         <div
           className={classes.seek}
-          style={{ height: cellSize * (octaveNoteLength + 1) }}
+          style={{
+            left: pos,
+            height: cellSize * (octaveNoteLength + 1),
+          }}
         />
         {Array(timeLineMax * octaveNoteLength)
           .fill(undefined)
