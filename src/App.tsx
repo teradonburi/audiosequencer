@@ -6,7 +6,11 @@ import { cellSize } from './tool/Note.css'
 const App: React.FC = () => {
   // 60秒 ⁄ 120 = 0.5秒（「Tempo = 120.000」 は、「１分間に４分音符が 120個」 の意）
   const [tempo, setTempo] = React.useState(100)
-  const [pos, setPos] = React.useState(0)
+  const [player, setPlayer] = React.useState({
+    pos: 0,
+    startTime: 0,
+    status: 'stop',
+  })
   const [sequences, setSequences] = React.useState<
     {
       channel: number
@@ -21,9 +25,7 @@ const App: React.FC = () => {
   >([])
   const { webAudioSynth, emptySequence } = React.useMemo(() => {
     const webAudioSynth = new WebAudioSynth()
-    webAudioSynth.init((pos) => {
-      setPos(pos)
-    })
+    webAudioSynth.init()
     const emptySequence = Array(WebAudioSynth.maxChannel)
       .fill(undefined)
       .map(
@@ -95,6 +97,12 @@ const App: React.FC = () => {
       await webAudioSynth.recording(duration)
     }
 
+    setPlayer({
+      ...player,
+      startTime: webAudioSynth.currentTime - player.pos,
+      status: 'play',
+    })
+
     for (let i = 0; i < WebAudioSynth.maxChannel; ++i) {
       if (i === WebAudioSynth.drumsetChannel) {
         for (const drammapPart of drammapParts) {
@@ -123,6 +131,42 @@ const App: React.FC = () => {
       })
     }
   }
+
+  const stop = () => {
+    for (let ch = 0; ch < WebAudioSynth.maxChannel; ++ch) {
+      webAudioSynth.allSoundOff(ch)
+    }
+    setPlayer({
+      ...player,
+      status: 'stop',
+    })
+  }
+
+  React.useEffect(() => {
+    let handle = null
+    const loop = () => {
+      switch (player.status) {
+        case 'play':
+          {
+            const pos = webAudioSynth.currentTime - player.startTime
+            setPlayer({ ...player, pos })
+          }
+          break
+        case 'stop':
+          {
+            setPlayer({ ...player, startTime: webAudioSynth.currentTime })
+          }
+          break
+      }
+      handle = requestAnimationFrame(loop)
+    }
+    handle = requestAnimationFrame(loop)
+    return () => {
+      if (handle) {
+        cancelAnimationFrame(handle)
+      }
+    }
+  }, [player, webAudioSynth.currentTime, tempo])
 
   const setName = ({ channel, name }: { channel: number; name: string }) => {
     const sequence = sequences[channel]
@@ -223,7 +267,9 @@ const App: React.FC = () => {
           padding: 10,
         }}
       >
-        <button onClick={() => play({})}>Play</button>
+        <button onClick={() => (player.status === 'play' ? stop() : play({}))}>
+          {player.status === 'play' ? 'Stop' : 'Play'}
+        </button>
         <button onClick={() => play({ isRecording: true })}>Rec</button>
 
         <button onClick={saveSequences}>save</button>
@@ -247,7 +293,7 @@ const App: React.FC = () => {
             <summary>Channel {i + 1}</summary>
             <dl style={{ margin: 0 }}>
               <Sequence
-                pos={pos * cellSize * (60 / tempo) * 4}
+                pos={player.pos * cellSize * 4 * (tempo / 60)}
                 channel={s.channel}
                 name={s.name}
                 names={
