@@ -97,9 +97,10 @@ const App: React.FC = () => {
       await webAudioSynth.recording(duration)
     }
 
+    const pos = player.pos
     setPlayer({
       ...player,
-      startTime: webAudioSynth.currentTime - player.pos,
+      startTime: webAudioSynth.currentTime - pos,
       status: 'play',
     })
 
@@ -110,8 +111,8 @@ const App: React.FC = () => {
             const div = note.d || 4
             const dt = (60 / tempo) * (4 / div)
             const t = note.t || 0
-            if (note.n) {
-              webAudioSynth.noteOn({ ch: i, n: note.n, t, dt })
+            if (note.n && t >= pos) {
+              webAudioSynth.noteOn({ ch: i, n: note.n, t: t - pos, dt })
             }
           })
         }
@@ -125,8 +126,8 @@ const App: React.FC = () => {
         const div = note.d || 4
         const dt = (60 / tempo) * (4 / div)
         const t = note.t || 0
-        if (note.n) {
-          webAudioSynth.noteOn({ ch: i, n: note.n, t, dt })
+        if (note.n && t >= pos) {
+          webAudioSynth.noteOn({ ch: i, n: note.n, t: t - pos, dt })
         }
       })
     }
