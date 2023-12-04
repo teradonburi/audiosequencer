@@ -277,7 +277,7 @@ const App: React.FC = () => {
         style={{
           position: 'sticky',
           top: 0,
-          zIndex: 3,
+          zIndex: 4,
           background: 'white',
           padding: 10,
         }}
