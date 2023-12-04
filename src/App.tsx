@@ -132,12 +132,23 @@ const App: React.FC = () => {
     }
   }
 
+  const pause = () => {
+    for (let ch = 0; ch < WebAudioSynth.maxChannel; ++ch) {
+      webAudioSynth.allSoundOff(ch)
+    }
+    setPlayer({
+      ...player,
+      status: 'pause',
+    })
+  }
+
   const stop = () => {
     for (let ch = 0; ch < WebAudioSynth.maxChannel; ++ch) {
       webAudioSynth.allSoundOff(ch)
     }
     setPlayer({
       ...player,
+      pos: 0,
       status: 'stop',
     })
   }
@@ -152,6 +163,7 @@ const App: React.FC = () => {
             setPlayer({ ...player, pos })
           }
           break
+        case 'pause':
         case 'stop':
           {
             setPlayer({ ...player, startTime: webAudioSynth.currentTime })
@@ -269,9 +281,10 @@ const App: React.FC = () => {
           padding: 10,
         }}
       >
-        <button onClick={() => (player.status === 'play' ? stop() : play({}))}>
-          {player.status === 'play' ? 'Stop' : 'Play'}
+        <button onClick={() => (player.status === 'play' ? pause() : play({}))}>
+          {player.status === 'play' ? 'Pause' : 'Play'}
         </button>
+        <button onClick={stop}>Stop</button>
         <button onClick={() => play({ isRecording: true })}>Rec</button>
 
         <button onClick={saveSequences}>save</button>
