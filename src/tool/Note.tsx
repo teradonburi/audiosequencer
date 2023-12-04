@@ -137,8 +137,6 @@ const Note = React.forwardRef<ResizableBox, Props>((props, ref) => {
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if ((e.ctrlKey && !e.metaKey) || (!e.ctrlKey && e.metaKey)) {
       setSelected(!selected)
-    } else {
-      setSelected(false)
     }
   }
 
