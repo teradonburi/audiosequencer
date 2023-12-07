@@ -23,6 +23,7 @@ const App: React.FC = () => {
       mode: 'instrument' | 'drum'
     }[]
   >([])
+  const copyTargets = React.useRef([])
   const { webAudioSynth, emptySequence } = React.useMemo(() => {
     const webAudioSynth = new WebAudioSynth()
     webAudioSynth.init()
@@ -50,10 +51,69 @@ const App: React.FC = () => {
     } else {
       setSequences(emptySequence)
     }
+
     return () => {
       webAudioSynth.release()
     }
   }, [webAudioSynth, emptySequence])
+
+  const onKeyDown = (e) => {
+    if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+      const notes = document.querySelectorAll('div.note[data-selected="true"]')
+      const targets = Array.from(notes)
+        .map((n) => {
+          const channel = parseInt(n.getAttribute('data-channel'), 10)
+          const noteIndex = parseInt(n.getAttribute('data-id'), 10)
+          const note = sequences.find((s) => s.channel === channel)?.notes[
+            noteIndex
+          ]
+          return note ? { channel, note } : null
+        })
+        .filter((n) => n)
+      copyTargets.current = targets
+    } else if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+      const targets = copyTargets.current
+      for (const target of targets) {
+        addNote({
+          channel: target.channel,
+          note: {
+            n: target.note.n,
+            d: target.note.d,
+            tt: target.note.tt,
+          },
+        })
+      }
+      copyTargets.current = []
+    }
+  }
+
+  React.useEffect(() => {
+    let handle = null
+    const loop = () => {
+      switch (player.status) {
+        case 'play':
+          {
+            const pos = webAudioSynth.currentTime - player.startTime
+            setPlayer({ ...player, pos })
+          }
+          break
+        case 'pause':
+        case 'stop':
+          {
+            setPlayer({ ...player, startTime: webAudioSynth.currentTime })
+          }
+          break
+      }
+      handle = requestAnimationFrame(loop)
+    }
+    handle = requestAnimationFrame(loop)
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      cancelAnimationFrame(handle)
+    }
+  })
 
   const clearSequences = () => {
     window.localStorage.setItem('sequences', JSON.stringify(emptySequence))
@@ -153,33 +213,6 @@ const App: React.FC = () => {
       status: 'stop',
     })
   }
-
-  React.useEffect(() => {
-    let handle = null
-    const loop = () => {
-      switch (player.status) {
-        case 'play':
-          {
-            const pos = webAudioSynth.currentTime - player.startTime
-            setPlayer({ ...player, pos })
-          }
-          break
-        case 'pause':
-        case 'stop':
-          {
-            setPlayer({ ...player, startTime: webAudioSynth.currentTime })
-          }
-          break
-      }
-      handle = requestAnimationFrame(loop)
-    }
-    handle = requestAnimationFrame(loop)
-    return () => {
-      if (handle) {
-        cancelAnimationFrame(handle)
-      }
-    }
-  }, [player, webAudioSynth.currentTime, tempo])
 
   const setName = ({ channel, name }: { channel: number; name: string }) => {
     const sequence = sequences[channel]

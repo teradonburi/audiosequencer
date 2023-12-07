@@ -10,6 +10,7 @@ import 'react-contexify/ReactContexify.css'
 import { ResizableBox } from 'react-resizable'
 import 'react-resizable/css/styles.css'
 import { cellSize, classes } from './Note.css'
+import clsx from 'clsx'
 
 export interface Props {
   id: string
@@ -145,8 +146,9 @@ const Note = React.forwardRef<ResizableBox, Props>((props, ref) => {
       <ResizableBox
         ref={ref}
         id={id}
-        data-id={idx}
         data-selected={selected}
+        data-channel={channel}
+        data-id={idx}
         data-n={note.n}
         data-tt={note.tt}
         width={note.d * cellSize - 2}
@@ -162,7 +164,7 @@ const Note = React.forwardRef<ResizableBox, Props>((props, ref) => {
           ...style,
           border: selected ? 'thin solid red' : 'thin solid black',
         }}
-        className={classes.note}
+        className={clsx('note', classes.note)}
         onContextMenu={(e) => handleContextMenu(e, channel, note, idx)}
         onClick={onClick}
       />
