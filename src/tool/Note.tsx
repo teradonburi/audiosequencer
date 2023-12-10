@@ -135,10 +135,8 @@ const Note = React.forwardRef<ResizableBox, Props>((props, ref) => {
     }
   }
 
-  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if ((e.ctrlKey && !e.metaKey) || (!e.ctrlKey && e.metaKey)) {
-      setSelected(!selected)
-    }
+  const onClick = () => {
+    setSelected(!selected)
   }
 
   return (
@@ -169,6 +167,9 @@ const Note = React.forwardRef<ResizableBox, Props>((props, ref) => {
         onClick={onClick}
       />
       <Menu id={menuId}>
+        <Item>number:{note.n}</Item>
+        <Item>time:{note.tt}</Item>
+        <Separator />
         <Item id="delete" onClick={handleItemClick}>
           Delete
         </Item>

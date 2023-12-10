@@ -61,11 +61,11 @@ const Sequence: React.FC<Props> = (props) => {
           rect.top < e.clientY &&
           e.clientY < rect.bottom
         ) {
-          targets.push({ noteIndex, n, tt })
+          targets.push({ id: noteComponent.props.id, noteIndex, n, tt })
         }
         // 複数選択モード
         else if (elem.getAttribute('data-selected') === 'true') {
-          targets.push({ noteIndex, n, tt })
+          targets.push({ id: noteComponent.props.id, noteIndex, n, tt })
         }
       }
     }
@@ -83,11 +83,15 @@ const Sequence: React.FC<Props> = (props) => {
       const diffX = Math.floor((x - drag.x) / cellSize)
       const diffY = Math.round((y - drag.y) / cellSize)
       if (diffX === 0 && diffY === 0) return
+
       for (const target of drag.targets) {
         const noteIndex = target.noteIndex
         const note = notes[noteIndex]
         const n = target.n + diffY * (mode === 'instrument' ? -1 : 1)
         const tt = target.tt + diffX
+
+        if (n < 60 || n > 60 + octaveNoteLength - 1) continue
+        if (tt < 0 || tt > timeLineMax) continue
         updateNote({
           channel: props.channel,
           note: {
@@ -142,7 +146,7 @@ const Sequence: React.FC<Props> = (props) => {
               style={{
                 top:
                   mode === 'instrument'
-                    ? (octaveNoteLength + 60 - note.n) * cellSize
+                    ? (octaveNoteLength + 60 - note.n - 1) * cellSize
                     : (note.n - 35) * cellSize,
                 left: note.tt * cellSize,
                 position: 'absolute',
@@ -178,13 +182,14 @@ const Sequence: React.FC<Props> = (props) => {
           .map((_, i) => (
             <div
               key={`note-${i}`}
+              id={`channel-${channel}-note-block-${i}`}
               style={{
                 top: (i % octaveNoteLength) * cellSize,
                 left: Math.floor(i / octaveNoteLength) * cellSize,
                 // n: ド=60, レ=62, ミ=64, ファ=65, ソ=67, ラ=69, シ=71, ド=72
                 background:
                   mode === 'instrument' &&
-                  [1, 3, 6, 8, 10].includes(i % octaveNoteLength)
+                  [1, 3, 5, 8, 10].includes(i % octaveNoteLength)
                     ? '#888'
                     : '#fff',
               }}
@@ -196,7 +201,7 @@ const Sequence: React.FC<Props> = (props) => {
                     d: mode === 'instrument' ? 4 : 1,
                     n:
                       mode === 'instrument'
-                        ? octaveNoteLength - (i % octaveNoteLength) + 60
+                        ? 60 + octaveNoteLength - (i % octaveNoteLength) - 1
                         : (i % octaveNoteLength) + 35,
                     tt: Math.floor(i / octaveNoteLength),
                   },

@@ -285,7 +285,7 @@ const App: React.FC = () => {
         dt,
       })
     }
-    notes[noteIndex] = { ...note, t: note.tt * (60 / tempo) * (4 / 32) }
+    notes[noteIndex] = { ...note, t: note.tt * (60 / tempo) * (4 / 16) }
     sequences[channel] = { ...sequence, notes }
     setSequences([...sequences])
   }
