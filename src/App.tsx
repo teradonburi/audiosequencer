@@ -353,7 +353,7 @@ const App: React.FC = () => {
                 notes={s.notes || []}
                 timeLineMax={100}
                 octaveNoteLength={
-                  s.mode === 'drum' ? webAudioSynth.drumNames.length : 12
+                  s.mode === 'drum' ? webAudioSynth.drumNames.length : 13
                 }
                 setName={setName}
                 addNote={addNote}

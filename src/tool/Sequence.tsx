@@ -42,6 +42,7 @@ const Sequence: React.FC<Props> = (props) => {
   } = props
   const [drag, setDrag] = React.useState(null)
   const noteRefs = React.useRef([])
+  const base = mode === 'instrument' ? 60 : 35
 
   const onDragStart = (e) => {
     const targets = []
@@ -90,7 +91,7 @@ const Sequence: React.FC<Props> = (props) => {
         const n = target.n + diffY * (mode === 'instrument' ? -1 : 1)
         const tt = target.tt + diffX
 
-        if (n < 60 || n > 60 + octaveNoteLength - 1) continue
+        if (n < base || n > base + octaveNoteLength - 1) continue
         if (tt < 0 || tt > timeLineMax) continue
         updateNote({
           channel: props.channel,
@@ -146,8 +147,8 @@ const Sequence: React.FC<Props> = (props) => {
               style={{
                 top:
                   mode === 'instrument'
-                    ? (octaveNoteLength + 60 - note.n - 1) * cellSize
-                    : (note.n - 35) * cellSize,
+                    ? (octaveNoteLength + base - note.n - 1) * cellSize
+                    : (note.n - base) * cellSize,
                 left: note.tt * cellSize,
                 position: 'absolute',
                 zIndex: 1,
@@ -189,7 +190,7 @@ const Sequence: React.FC<Props> = (props) => {
                 // n: ド=60, レ=62, ミ=64, ファ=65, ソ=67, ラ=69, シ=71, ド=72
                 background:
                   mode === 'instrument' &&
-                  [1, 3, 5, 8, 10].includes(i % octaveNoteLength)
+                  [2, 4, 6, 9, 11].includes(i % octaveNoteLength)
                     ? '#888'
                     : '#fff',
               }}
@@ -201,8 +202,8 @@ const Sequence: React.FC<Props> = (props) => {
                     d: mode === 'instrument' ? 4 : 1,
                     n:
                       mode === 'instrument'
-                        ? 60 + octaveNoteLength - (i % octaveNoteLength) - 1
-                        : (i % octaveNoteLength) + 35,
+                        ? base + octaveNoteLength - (i % octaveNoteLength) - 1
+                        : (i % octaveNoteLength) + base,
                     tt: Math.floor(i / octaveNoteLength),
                   },
                 })
