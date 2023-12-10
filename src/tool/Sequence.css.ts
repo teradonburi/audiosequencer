@@ -40,8 +40,9 @@ export const classes = {
     paddingRight: 10,
   }),
   container: style({
-    height: cellSize * 12,
+    height: cellSize * 13,
     position: 'relative',
+    width: '100%',
   }),
   emptyNote: style({
     width: 19,
@@ -59,12 +60,18 @@ export const classes = {
       background: 'aqua !important',
     },
   }),
+  seekContainer: style({
+    position: 'relative',
+    cursor: 'pointer',
+    top: -20,
+    zIndex: 2,
+    width: '100%',
+    height: 20,
+  }),
   seek: style({
     position: 'absolute',
     left: 0,
-    top: -20,
     width: 2,
     background: 'red',
-    zIndex: 2,
   }),
 }

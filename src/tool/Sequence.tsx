@@ -20,6 +20,7 @@ interface Props {
   notes: NoteProps['note'][]
   deleteNote: NoteProps['deleteNote']
   updateNote: NoteProps['updateNote']
+  onSeekSet: React.MouseEventHandler<HTMLDivElement>
   timeLineMax: number
   octaveNoteLength: number
   mode: 'instrument' | 'drum'
@@ -38,6 +39,7 @@ const Sequence: React.FC<Props> = (props) => {
     addNote,
     deleteNote,
     updateNote,
+    onSeekSet,
     mode,
   } = props
   const [drag, setDrag] = React.useState(null)
@@ -171,13 +173,15 @@ const Sequence: React.FC<Props> = (props) => {
             </div>
           )
         })}
-        <div
-          className={classes.seek}
-          style={{
-            left: pos,
-            height: cellSize * (octaveNoteLength + 1),
-          }}
-        />
+        <div className={classes.seekContainer} onMouseDown={onSeekSet}>
+          <div
+            className={classes.seek}
+            style={{
+              left: pos,
+              height: cellSize * (octaveNoteLength + 1),
+            }}
+          />
+        </div>
         {Array(timeLineMax * octaveNoteLength)
           .fill(undefined)
           .map((_, i) => (

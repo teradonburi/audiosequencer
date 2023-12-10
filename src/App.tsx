@@ -303,6 +303,16 @@ const App: React.FC = () => {
     setTempo(tempo)
   }
 
+  const onSeekSet = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const newPos =
+      Math.round((e.clientX - rect.left) / cellSize) / 4 / (tempo / 60)
+    setPlayer({
+      ...player,
+      pos: newPos,
+    })
+  }
+
   return (
     <>
       <h1>WebAudioシーケンサー</h1>
@@ -334,36 +344,39 @@ const App: React.FC = () => {
         </span>
       </div>
       <div>
-        {sequences.map((s, i) => (
-          <details
-            key={`sequencer-${i}`}
-            open={i === 0 || i === WebAudioSynth.drumsetChannel}
-          >
-            <summary>Channel {i + 1}</summary>
-            <dl style={{ margin: 0 }}>
-              <Sequence
-                pos={player.pos * cellSize * 4 * (tempo / 60)}
-                channel={s.channel}
-                name={s.name}
-                names={
-                  s.mode === 'drum'
-                    ? webAudioSynth.drumNames
-                    : webAudioSynth.instrumentNames
-                }
-                notes={s.notes || []}
-                timeLineMax={100}
-                octaveNoteLength={
-                  s.mode === 'drum' ? webAudioSynth.drumNames.length : 13
-                }
-                setName={setName}
-                addNote={addNote}
-                deleteNote={deleteNote}
-                updateNote={updateNote}
-                mode={s.mode}
-              />
-            </dl>
-          </details>
-        ))}
+        {sequences.map((s, i) => {
+          const octaveNoteLength =
+            s.mode === 'drum' ? webAudioSynth.drumNames.length : 13
+          return (
+            <details
+              key={`sequencer-${i}`}
+              open={i === 0 || i === WebAudioSynth.drumsetChannel}
+            >
+              <summary>Channel {i + 1}</summary>
+              <dl style={{ margin: 0 }}>
+                <Sequence
+                  pos={player.pos * cellSize * 4 * (tempo / 60)}
+                  channel={s.channel}
+                  name={s.name}
+                  names={
+                    s.mode === 'drum'
+                      ? webAudioSynth.drumNames
+                      : webAudioSynth.instrumentNames
+                  }
+                  notes={s.notes || []}
+                  timeLineMax={100}
+                  octaveNoteLength={octaveNoteLength}
+                  setName={setName}
+                  addNote={addNote}
+                  deleteNote={deleteNote}
+                  updateNote={updateNote}
+                  onSeekSet={onSeekSet}
+                  mode={s.mode}
+                />
+              </dl>
+            </details>
+          )
+        })}
       </div>
     </>
   )
