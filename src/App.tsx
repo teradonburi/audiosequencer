@@ -140,29 +140,30 @@ const App: React.FC = () => {
       notes?: { n: number; d?: number; t?: number }[]
     }[] = sequences.filter((s) => s.channel === WebAudioSynth.drumsetChannel)
 
-    const duration = [...instrumentParts, ...drammapParts].reduce(
-      (acc, cur) => {
-        cur.notes.forEach((note) => {
-          const div = note.d || 4
-          const dt = (60 / tempo) * (4 / div)
-          const t = note.t + dt
-          if (acc < t) acc = t
-        })
-        return acc
-      },
-      0,
-    )
-
+    let pos = 0
     if (isRecording) {
-      await webAudioSynth.recording(duration)
-    }
+      const duration = [...instrumentParts, ...drammapParts].reduce(
+        (acc, cur) => {
+          cur.notes.forEach((note) => {
+            const div = note.d || 4
+            const dt = (60 / tempo) * (4 / div)
+            const t = note.t + dt
+            if (acc < t) acc = t
+          })
+          return acc
+        },
+        0,
+      )
 
-    const pos = player.pos
-    setPlayer({
-      ...player,
-      startTime: webAudioSynth.currentTime - pos,
-      status: 'play',
-    })
+      await webAudioSynth.recording(duration)
+    } else {
+      pos = player.pos
+      setPlayer({
+        ...player,
+        startTime: webAudioSynth.currentTime - pos,
+        status: 'play',
+      })
+    }
 
     for (let i = 0; i < WebAudioSynth.maxChannel; ++i) {
       if (i === WebAudioSynth.drumsetChannel) {
@@ -328,7 +329,7 @@ const App: React.FC = () => {
         <button onClick={() => (player.status === 'play' ? pause() : play({}))}>
           {player.status === 'play' ? 'Pause' : 'Play'}
         </button>
-        <button onClick={stop}>Stop</button>
+        <button onClick={() => stop()}>Stop</button>
         <button onClick={() => play({ isRecording: true })}>Rec</button>
 
         <button onClick={saveSequences}>save</button>
