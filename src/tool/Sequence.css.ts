@@ -21,6 +21,7 @@ export const classes = {
     paddingLeft: 10,
     zIndex: 3,
     background: 'white',
+    width: 140,
   }),
   selectName: style({
     margin: '0px 10px 0px 10px',
@@ -33,6 +34,7 @@ export const classes = {
     paddingLeft: 10,
     zIndex: 3,
     background: 'white',
+    width: 160,
   }),
   name: style({
     fontSize: 12,
