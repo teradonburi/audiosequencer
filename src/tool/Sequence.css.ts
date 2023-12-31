@@ -43,7 +43,7 @@ export const classes = {
     height: cellSize * 13,
     position: 'relative',
     width: '100%',
-    overflowX: 'auto',
+    // overflowX: 'auto',
   }),
   emptyNote: style({
     width: 19,
